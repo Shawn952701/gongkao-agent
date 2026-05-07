@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>粤考通 · 广东公考智能顾问</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #C0392B;
+    --red-light: #fadbd8;
+    --red-dark: #922b21;
+    --ink: #1a1a2e;
+    --ink-mid: #4a4a6a;
+    --ink-soft: #8888aa;
+    --paper: #fdfcf8;
+    --paper-mid: #f5f3ec;
+    --paper-dark: #ede9df;
+    --gold: #b8860b;
+    --border: rgba(26,26,46,0.1);
+    --shadow: 0 2px 20px rgba(26,26,46,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  header {
+    background: var(--ink);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--red) 0%, var(--gold) 50%, var(--red) 100%);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-mark {
+    width: 30px; height: 30px;
+    background: var(--red);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14px; font-weight: 600;
+    color: #fff;
+    letter-spacing: -1px;
+  }
+
+  .logo-text {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 17px; font-weight: 600;
+    color: #fff;
+    letter-spacing: 2px;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 1px;
+    margin-left: 2px;
+  }
+
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #27ae60;
+    box-shadow: 0 0 0 2px rgba(39,174,96,0.25);
+  }
+
+  .chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 0;
+    scroll-behavior: smooth;
+  }
+
+  .chat-area::-webkit-scrollbar { width: 4px; }
+  .chat-area::-webkit-scrollbar-track { background: transparent; }
+  .chat-area::-webkit-scrollbar-thumb { background: var(--paper-dark); border-radius: 2px; }
+
+  .message-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .message {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    animation: fadeUp 0.25s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .message.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 500;
+  }
+
+  .avatar.ai {
+    background: var(--ink);
+    color: #fff;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 11px;
+    letter-spacing: 0;
+  }
+
+  .avatar.user-av {
+    background: var(--red-light);
+    color: var(--red-dark);
+  }
+
+  .bubble {
+    max-width: calc(100% - 100px);
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14.5px;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .message.ai .bubble {
+    background: #fff;
+    border: 0.5px solid var(--border);
+    border-radius: 4px 12px 12px 12px;
+    box-shadow: var(--shadow);
+    color: var(--ink);
+  }
+
+  .message.user .bubble {
+    background: var(--ink);
+    color: #fff;
+    border-radius: 12px 4px 12px 12px;
+  }
+
+  .typing-bubble {
+    background: #fff;
+    border: 0.5px solid var(--border);
+    border-radius: 4px 12px 12px 12px;
+    box-shadow: var(--shadow);
+    padding: 14px 18px;
+    display: flex; gap: 5px; align-items: center;
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--ink-soft);
+    animation: bounce 1.2s infinite;
+  }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-5px); opacity: 1; }
+  }
+
+  .welcome {
+    max-width: 720px;
+    margin: 0 auto 24px;
+    padding: 0 20px;
+  }
+
+  .welcome-card {
+    background: #fff;
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .welcome-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--red), var(--gold));
+  }
+
+  .welcome-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 18px; font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .welcome-desc {
+    font-size: 13.5px;
+    color: var(--ink-mid);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+
+  .chips {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+
+  .chip {
+    background: var(--paper-mid);
+    border: 0.5px solid var(--paper-dark);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--ink-mid);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+
+  .chip:hover {
+    background: var(--red-light);
+    border-color: var(--red);
+    color: var(--red-dark);
+  }
+
+  .input-area {
+    flex-shrink: 0;
+    background: var(--paper);
+    border-top: 0.5px solid var(--border);
+    padding: 16px 20px;
+  }
+
+  .input-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    background: #fff;
+    border: 1px solid var(--paper-dark);
+    border-radius: 12px;
+    padding: 10px 12px;
+    box-shadow: var(--shadow);
+    transition: border-color 0.15s;
+  }
+
+  .input-inner:focus-within {
+    border-color: var(--ink);
+  }
+
+  textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 14.5px;
+    color: var(--ink);
+    background: transparent;
+    line-height: 1.6;
+    max-height: 120px;
+    min-height: 24px;
+  }
+
+  textarea::placeholder { color: var(--ink-soft); }
+
+  .send-btn {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: var(--ink);
+    color: #fff;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .send-btn:hover { background: var(--red); }
+  .send-btn:active { transform: scale(0.95); }
+  .send-btn:disabled { background: var(--paper-dark); cursor: not-allowed; }
+
+  .send-btn svg { width: 16px; height: 16px; }
+
+  .footer-note {
+    text-align: center;
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 8px;
+    max-width: 720px;
+    margin-left: auto; margin-right: auto;
+  }
+
+  @media (max-width: 600px) {
+    .bubble { max-width: calc(100% - 60px); font-size: 14px; }
+    header { padding: 0 16px; }
+    .input-area { padding: 12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">粤考</div>
+    <div>
+      <div class="logo-text">粤考通</div>
+      <div class="logo-sub">广东公考智能顾问</div>
+    </div>
+  </div>
+  <div class="status-dot"></div>
+</header>
+
+<div class="chat-area" id="chatArea">
+  <div class="message-wrap">
+    <div class="welcome" id="welcome">
+      <div class="welcome-card">
+        <div class="welcome-title">你好，我是你的广东公考顾问</div>
+        <div class="welcome-desc">我会根据你的具体情况——学校、专业、政治面貌、应届与否——判断你能报哪些考试、推荐最适合的路径，并制定专属备考计划。</div>
+        <div class="chips">
+          <div class="chip" onclick="sendQuick('我想考广东公务员，不知道从哪里开始')">我想考公，不知道从哪里开始</div>
+          <div class="chip" onclick="sendQuick('我是党员，想了解选调生的条件')">我是党员，想了解选调生</div>
+          <div class="chip" onclick="sendQuick('我是法律专业应届生，想考公考')">法律应届生，想考公考</div>
+          <div class="chip" onclick="sendQuick('帮我制定一份公考复习计划')">帮我制定备考计划</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="input-area">
+  <div class="input-inner">
+    <textarea id="input" placeholder="输入你的问题…" rows="1"></textarea>
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
+      </svg>
+    </button>
+  </div>
+  <div class="footer-note">回答仅供参考，具体报考条件以当年官方公告为准</div>
+</div>
+
+<script>
+const chatArea = document.getElementById('chatArea');
+const msgWrap = chatArea.querySelector('.message-wrap');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('sendBtn');
+let history = [];
+let isLoading = false;
+
+input.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+
+input.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+function sendQuick(text) {
+  input.value = text;
+  sendMessage();
+}
+
+function appendMsg(role, text) {
+  const welcome = document.getElementById('welcome');
+  if (welcome) welcome.remove();
+
+  const wrap = document.createElement('div');
+  wrap.className = `message ${role}`;
+
+  const av = document.createElement('div');
+  av.className = `avatar ${role === 'ai' ? 'ai' : 'user-av'}`;
+  av.textContent = role === 'ai' ? '顾问' : '我';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.textContent = text;
+
+  wrap.appendChild(av);
+  wrap.appendChild(bubble);
+  msgWrap.appendChild(wrap);
+  scrollBottom();
+  return bubble;
+}
+
+function showTyping() {
+  const wrap = document.createElement('div');
+  wrap.className = 'message ai';
+  wrap.id = 'typing';
+
+  const av = document.createElement('div');
+  av.className = 'avatar ai';
+  av.textContent = '顾问';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'typing-bubble';
+  bubble.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+
+  wrap.appendChild(av);
+  wrap.appendChild(bubble);
+  msgWrap.appendChild(wrap);
+  scrollBottom();
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+function scrollBottom() {
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+async function sendMessage() {
+  const text = input.value.trim();
+  if (!text || isLoading) return;
+
+  isLoading = true;
+  sendBtn.disabled = true;
+  input.value = '';
+  input.style.height = 'auto';
+
+  appendMsg('user', text);
+  history.push({ role: 'user', content: text });
+  showTyping();
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: history })
+    });
+
+    const data = await res.json();
+    removeTyping();
+
+    if (data.reply) {
+      appendMsg('ai', data.reply);
+      history.push({ role: 'assistant', content: data.reply });
+    } else {
+      appendMsg('ai', '抱歉，出现了一些问题：' + (data.error || '未知错误'));
+    }
+  } catch (err) {
+    removeTyping();
+    appendMsg('ai', '网络错误，请稍后重试。');
+  }
+
+  isLoading = false;
+  sendBtn.disabled = false;
+  input.focus();
+}
+</script>
+</body>
+</html>
